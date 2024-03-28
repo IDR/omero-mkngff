@@ -318,7 +318,7 @@ class MkngffControl(BaseControl):
         lines = ["omezarr.list_pixels=false\n",
                  "omezarr.quick_read=true\n"]
         if clientpath is not None:
-            lines.append("omezarr.alt_store={clientpath}\n")
+            lines.append("omezarr.alt_store=%s\n" % clientpath)
         with open(bfoptions_path, "w") as f:
             f.writelines(lines)
 
