@@ -182,6 +182,10 @@ class MkngffControl(BaseControl):
         symlink.add_argument("symlink_target")
         symlink.add_argument("--bfoptions", action="store_true", help="Create data.zarr.bfoptions file")
         symlink.add_argument("--fs_suffix", default="_mkngff", help=FS_SUFFIX_HELP)
+        symlink.add_argument(
+            "--clientpath",
+            help=("Adds omezarr.alt_store=clientpath/path/to/img.zarr to bfoptions")
+        )
         symlink.set_defaults(func=self.symlink)
 
         bfoptions = sub.add_parser("bfoptions", help="Create data.zarr.bfoptions in Fileset")
