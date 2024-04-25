@@ -1,11 +1,10 @@
-.. image:: https://github.com/ome/omero-mkngff/workflows/OMERO/badge.svg
-    :target: https://github.com/ome/omero-mkngff
-
+.. image:: https://github.com/IDR/omero-mkngff/workflows/OMERO/badge.svg
+    :target: https://github.com/IDR/omero-mkngff
 .. image:: https://badge.fury.io/py/omero-mkngff.svg
     :target: https://badge.fury.io/py/omero-mkngff
 
 omero-mkngff
-==================================
+============
 
 Plugin to swap OMERO filesets with NGFF
 
@@ -86,4 +85,4 @@ licensed under the terms of the GNU General Public License (GPL) v2 or later.
 Copyright
 ---------
 
-2017-2020, The Open Microscopy Environment
+2023-2024, The Open Microscopy Environment
