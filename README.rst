@@ -21,17 +21,21 @@ To create sql containing required functions and run it:
 
 To generate sql and create the symlinks from the ManagedRepository to the NGFF data for a
 specified Fileset ID:
+The clientpath is used as the basis for the clientpath for each file in the Fileset. If omitted then
+the clientpath is 'unknown'. When writing .zarr.bfoptions into the ManagedRepository alongside the
+symlink to fileset.zarr, the clientpath will be added to bfoptions as `omezarr.alt_store`, allowing
+ZarrReader to read directly from that source.
 
 ::
 
-    $ omero mkngff sql --symlink_repo /OMERO/ManagedRepository --secret=secret --bfoptions 1234 /path/to/fileset.zarr > myNgff.sql
+    $ omero mkngff sql --symlink_repo /OMERO/ManagedRepository --secret=secret --bfoptions --clientpath=https://url/to/fileset.zarr 1234 /path/to/fileset.zarr > myNgff.sql
     $ psql -U omero -d idr -h $DBHOST -f myNgff.sql
 
-To ONLY perform the symlink creation (and optionally create fileset.zarr.bfoptions)
+To ONLY perform the symlink creation (and optionally create fileset.zarr.bfoptions with clientpath as above)
 
 ::
 
-    $ omero mkngff symlink /OMERO/ManagedRepository 1234 /path/to/fileset.zarr --bfoptions
+    $ omero mkngff symlink /OMERO/ManagedRepository 1234 /path/to/fileset.zarr --bfoptions --clientpath=https://url/to/fileset.zarr
 
 
 To ONLY create fileset.zarr.bfoptions
