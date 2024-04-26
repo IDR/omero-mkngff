@@ -43,9 +43,11 @@ Examples:
     omero mkngff sql ${fileset} ${zarrdir} --zarr_name "nice.ome.zarr"
 
 """
-FS_SUFFIX_HELP = ("New Fileset.templatePrefix will be old Fileset.templatePrefix + fs_suffix. "
-                  "Default is to use _mkngff. "
-                  "Use 'None' to specify an empty string (new templatePrefix is same as old).")
+FS_SUFFIX_HELP = (
+    "New Fileset.templatePrefix will be old Fileset.templatePrefix + fs_suffix. "
+    "Default is to use _mkngff. "
+    "Use 'None' to specify an empty string (new templatePrefix is same as old)."
+)
 
 SETUP = """
 
@@ -151,36 +153,49 @@ class MkngffControl(BaseControl):
 
         sql = sub.add_parser("sql", help="generate SQL statement")
         sql.add_argument(
-            "--secret", help="DB UUID for protecting SQL statements", default="SECRETUUID"
+            "--secret",
+            help="DB UUID for protecting SQL statements",
+            default="SECRETUUID",
         )
         sql.add_argument("--zarr_name", help="Nicer name for zarr directory if desired")
         sql.add_argument(
             "--symlink_repo",
-            help=("Create symlinks from Fileset to symlink_target using"
-                  "this ManagedRepo path, e.g. /data/OMERO/ManagedRepository")
+            help=(
+                "Create symlinks from Fileset to symlink_target using"
+                "this ManagedRepo path, e.g. /data/OMERO/ManagedRepository"
+            ),
         )
         sql.add_argument(
-            "--bfoptions", action="store_true",
-            help=("Create data.zarr.bfoptions file if --symlink_repo has been provided")
+            "--bfoptions",
+            action="store_true",
+            help=(
+                "Create data.zarr.bfoptions file if --symlink_repo has been provided"
+            ),
         )
         sql.add_argument(
-            "--clientpath",
-            help=("Base path to create clientpath/path/to/img.zarr/")
+            "--clientpath", help=("Base path to create clientpath/path/to/img.zarr/")
         )
         sql.add_argument("--fs_suffix", default="_mkngff", help=FS_SUFFIX_HELP)
         sql.add_argument("fileset_id", type=int)
         sql.add_argument("symlink_target")
         sql.set_defaults(func=self.sql)
 
-        # symlink command to ONLY create symlinks - useful if you have previously generated
+        # symlink command to ONLY create symlinks
+        # useful if you have previously generated
         # the corresponding sql for a Fileset
         symlink = sub.add_parser("symlink", help="Create managed repo symlink")
-        symlink.add_argument("symlink_repo", help=(
-            "Create symlinks from Fileset to symlink_target using"
-            "this ManagedRepo path, e.g. /data/OMERO/ManagedRepository"))
+        symlink.add_argument(
+            "symlink_repo",
+            help=(
+                "Create symlinks from Fileset to symlink_target using"
+                "this ManagedRepo path, e.g. /data/OMERO/ManagedRepository"
+            ),
+        )
         symlink.add_argument("fileset_id", type=int)
         symlink.add_argument("symlink_target")
-        symlink.add_argument("--bfoptions", action="store_true", help="Create data.zarr.bfoptions file")
+        symlink.add_argument(
+            "--bfoptions", action="store_true", help="Create data.zarr.bfoptions file"
+        )
         symlink.add_argument("--fs_suffix", default="_mkngff", help=FS_SUFFIX_HELP)
         symlink.add_argument(
             "--clientpath",
@@ -188,9 +203,13 @@ class MkngffControl(BaseControl):
         )
         symlink.set_defaults(func=self.symlink)
 
-        bfoptions = sub.add_parser("bfoptions", help="Create data.zarr.bfoptions in Fileset")
-        bfoptions.add_argument("symlink_repo", help=(
-            "The ManagedRepo path, e.g. /data/OMERO/ManagedRepository"))
+        bfoptions = sub.add_parser(
+            "bfoptions", help="Create data.zarr.bfoptions in Fileset"
+        )
+        bfoptions.add_argument(
+            "symlink_repo",
+            help=("The ManagedRepo path, e.g. /data/OMERO/ManagedRepository"),
+        )
         bfoptions.add_argument("fileset_id", type=int)
         bfoptions.add_argument("symlink_target")
         bfoptions.add_argument("--fs_suffix", default="_mkngff", help=FS_SUFFIX_HELP)
@@ -211,11 +230,14 @@ class MkngffControl(BaseControl):
             self.ctx.die(401, f"Symlink target does not exist: {args.symlink_target}")
             return
 
-        # If symlink dir exists, we assume that this fileset has been processed -> skip...
+        # If symlink dir exists, we assume that
+        # this fileset has been processed -> skip...
         if args.symlink_repo:
             symlink_dir = self.get_symlink_dir(args.symlink_repo, prefix)
             if os.path.exists(symlink_dir):
-                self.ctx.err(f"Symlink dir exists at {symlink_dir} - skipping sql output")
+                self.ctx.err(
+                    f"Symlink dir exists at {symlink_dir} - skipping sql output"
+                )
                 return
 
         rows = []
@@ -225,16 +247,21 @@ class MkngffControl(BaseControl):
             row_clientpath = "unknown"
             if args.clientpath:
                 # zarr_path is relative URL from .zarr /to/file/
-                zarr_path = str(row_path).replace(args.symlink_target, '')
+                zarr_path = str(row_path).replace(args.symlink_target, "")
                 row_clientpath = f"{args.clientpath}{zarr_path}/{row_name}"
 
             # remove common path to shorten
-            row_path = str(row_path).replace(f"{symlink_path.parent}", "")
+            row_path = str(row_path).replace(f"{symlink_path.parent}", "")  # type: ignore # noqa
             if str(row_path).startswith("/"):
-                row_path = str(row_path)[1:]  # remove "/" from start
+                # remove "/" from start
+                row_path = str(row_path)[1:]  # type: ignore
             row_full_path = f"{prefix}{self.suffix}/{row_path}"
             # pick the first .zattrs file we find, then update to ome.xml if we find it
-            if setid_target is None and row_name == ".zattrs" or row_name == "METADATA.ome.xml":
+            if (
+                setid_target is None
+                and row_name == ".zattrs"
+                or row_name == "METADATA.ome.xml"
+            ):
                 setid_target = [row_full_path, row_name]
             rows.append(
                 ROW.format(
@@ -245,10 +272,13 @@ class MkngffControl(BaseControl):
                 )
             )
 
-        # Add a command to update the Pixels table with path/name using old Fileset ID *before* new Fileset is created
-        fpath = setid_target[0]
-        fname = setid_target[1]
-        self.ctx.out(f"UPDATE pixels SET name = '{fname}', path = '{fpath}' where image in (select id from Image where fileset = {args.fileset_id});")
+        # Add a command to update the Pixels table with
+        # path/name using old Fileset ID *before* new Fileset is created
+        fpath = setid_target[0]  # type: ignore
+        fname = setid_target[1]  # type: ignore
+        self.ctx.out(
+            f"UPDATE pixels SET name = '{fname}', path = '{fpath}' where image in (select id from Image where fileset = {args.fileset_id});"  # noqa
+        )
 
         self.ctx.out(
             TEMPLATE.format(
@@ -278,7 +308,7 @@ class MkngffControl(BaseControl):
         if args.bfoptions:
             self.write_bfoptions(args.symlink_repo, prefix, args.symlink_target, args.clientpath)
 
-    def get_prefix(self, args):
+    def get_prefix(self, args):  # type: ignore
 
         conn = self.ctx.conn(args)  # noqa
         q = conn.sf.getQueryService()
@@ -300,7 +330,7 @@ class MkngffControl(BaseControl):
 
         return prefix
 
-    def get_symlink_dir(self, symlink_repo, prefix):
+    def get_symlink_dir(self, symlink_repo, prefix):  # type: ignore
         prefix_dir = os.path.join(symlink_repo, prefix)
         self.ctx.err(f"Checking for prefix_dir {prefix_dir}")
         if not os.path.exists(prefix_dir):
@@ -308,7 +338,7 @@ class MkngffControl(BaseControl):
         symlink_dir = f"{prefix_dir}{self.suffix}"
         return symlink_dir
 
-    def write_bfoptions(self, managed_repo, fsprefix, symlink_target, clientpath=None):
+    def write_bfoptions(self, managed_repo, fsprefix, symlink_target, clientpath=None): # type: ignore # noqa
         file_path = Path(symlink_target)
         mkngff_dir = self.get_symlink_dir(managed_repo, fsprefix)
         # os.makedirs(mkngff_dir, exist_ok=True)
@@ -322,7 +352,7 @@ class MkngffControl(BaseControl):
         with open(bfoptions_path, "w") as f:
             f.writelines(lines)
 
-    def create_symlink(self, symlink_repo, prefix, symlink_target):
+    def create_symlink(self, symlink_repo, prefix, symlink_target):  # type: ignore # noqa
         symlink_path = Path(symlink_target)
         symlink_dir = self.get_symlink_dir(symlink_repo, prefix)
         self.ctx.err(f"Creating dir at {symlink_dir}")
@@ -330,9 +360,7 @@ class MkngffControl(BaseControl):
 
         symlink_source = os.path.join(symlink_dir, symlink_path.name)
         target_is_directory = os.path.isdir(symlink_target)
-        self.ctx.err(
-            f"Creating symlink {symlink_source} -> {symlink_target}"
-        )
+        self.ctx.err(f"Creating symlink {symlink_source} -> {symlink_target}")
         # ignore if symlink exists
         if not os.path.exists(symlink_source):
             os.symlink(symlink_target, symlink_source, target_is_directory)

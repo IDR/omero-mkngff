@@ -23,7 +23,7 @@ jobs:
     env:
       STAGE: cli
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Checkout omero-test-infra
         uses: actions/checkout@master
         with:
@@ -31,4 +31,4 @@ jobs:
           path: .omero
           ref: ${{ secrets.OMERO_TEST_INFRA_REF }}
       - name: Build and run OMERO tests
-        run: .omero/docker $STAGE
+        run: PLUGIN=mkngff .omero/docker $STAGE
