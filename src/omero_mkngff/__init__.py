@@ -199,7 +199,7 @@ class MkngffControl(BaseControl):
         symlink.add_argument("--fs_suffix", default="_mkngff", help=FS_SUFFIX_HELP)
         symlink.add_argument(
             "--clientpath",
-            help=("Adds omezarr.alt_store=clientpath/path/to/img.zarr to bfoptions")
+            help=("Adds omezarr.alt_store=clientpath/path/to/img.zarr to bfoptions"),
         )
         symlink.set_defaults(func=self.symlink)
 
@@ -294,22 +294,27 @@ class MkngffControl(BaseControl):
         if args.symlink_repo:
             self.create_symlink(args.symlink_repo, prefix, args.symlink_target)
             if args.bfoptions:
-                self.write_bfoptions(args.symlink_repo, prefix, args.symlink_target, args.clientpath)
+                self.write_bfoptions(
+                    args.symlink_repo, prefix, args.symlink_target, args.clientpath
+                )
 
     def bfoptions(self, args: Namespace) -> None:
         self.suffix = "" if args.fs_suffix == "None" else args.fs_suffix
         prefix = self.get_prefix(args)
-        self.write_bfoptions(args.symlink_repo, prefix, args.symlink_target, args.clientpath)
+        self.write_bfoptions(
+            args.symlink_repo, prefix, args.symlink_target, args.clientpath
+        )
 
     def symlink(self, args: Namespace) -> None:
         self.suffix = "" if args.fs_suffix == "None" else args.fs_suffix
         prefix = self.get_prefix(args)
         self.create_symlink(args.symlink_repo, prefix, args.symlink_target)
         if args.bfoptions:
-            self.write_bfoptions(args.symlink_repo, prefix, args.symlink_target, args.clientpath)
+            self.write_bfoptions(
+                args.symlink_repo, prefix, args.symlink_target, args.clientpath
+            )
 
     def get_prefix(self, args):  # type: ignore
-
         conn = self.ctx.conn(args)  # noqa
         q = conn.sf.getQueryService()
         rv = q.findAllByQuery(
@@ -338,15 +343,14 @@ class MkngffControl(BaseControl):
         symlink_dir = f"{prefix_dir}{self.suffix}"
         return symlink_dir
 
-    def write_bfoptions(self, managed_repo, fsprefix, symlink_target, clientpath=None): # type: ignore # noqa
+    def write_bfoptions(self, managed_repo, fsprefix, symlink_target, clientpath=None):  # type: ignore # noqa
         file_path = Path(symlink_target)
         mkngff_dir = self.get_symlink_dir(managed_repo, fsprefix)
         # os.makedirs(mkngff_dir, exist_ok=True)
         zarr_path = os.path.join(mkngff_dir, file_path.name)
         bfoptions_path = f"{zarr_path}.bfoptions"
         self.ctx.err("write bfoptions to: %s" % bfoptions_path)
-        lines = ["omezarr.list_pixels=false\n",
-                 "omezarr.quick_read=true\n"]
+        lines = ["omezarr.list_pixels=false\n", "omezarr.quick_read=true\n"]
         if clientpath is not None:
             lines.append("omezarr.alt_store=%s\n" % clientpath)
         with open(bfoptions_path, "w") as f:
