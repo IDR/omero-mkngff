@@ -12,6 +12,10 @@ Plugin to swap OMERO filesets with NGFF
 Usage
 =====
 
+For the full workflow used to update IDR with NGFF data, see 
+https://github.com/IDR/mkngff_upgrade_scripts.
+
+
 To create sql containing required functions and run it:
 
 ::
